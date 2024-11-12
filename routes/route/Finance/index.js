@@ -24,11 +24,9 @@ router.get("/akshare", async (ctx, next) => {
     };
     return;
   }
-  console.log(`${AKShareServiceURL}/stock?func=${func}`)
   const result = await axios.get(`${AKShareServiceURL}/stock?func=${func}`)
   console.log({ result: JSON.stringify(result.data) })
-
-
+  ctx.body = result.data
 });
 
 
