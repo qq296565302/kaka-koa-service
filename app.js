@@ -8,9 +8,6 @@ const router = require("./routes/index");
 // 使用 bodyParser 中间件
 app.use(bodyParser());
 
-const responseHandler = require('./middleware/responseHandler');
-app.use(responseHandler);
-
 // 定义一个简单的路由
 router.get('/', async (ctx) => {
   ctx.body = 'Hello, Koa!!';

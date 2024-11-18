@@ -12,7 +12,7 @@ router.get("/", function(ctx, next) {
  * 调用 AKShare 接口 
  */
 const axios = require("axios");
-const AKShareServiceURL = 'http://127.0.0.1:5000'
+const AKShareServiceURL = 'http://127.0.0.1:5000/api'
 
 router.get("/akshare", async (ctx, next) => {
   // 获取查询参数
@@ -25,9 +25,26 @@ router.get("/akshare", async (ctx, next) => {
     return;
   }
   const result = await axios.get(`${AKShareServiceURL}/stock?func=${func}`)
-  console.log({ result: JSON.stringify(result.data) })
   ctx.body = result.data
 });
 
+/**
+ * 获取 个股信息 数据
+ */
+router.get('/stockInfo', async (ctx, next) => {
+  const { symbol } = ctx.query;
+  const result = await axios.get(`${AKShareServiceURL}/stock/individual?symbol=${symbol}`)
+  ctx.body = result.data
+})
+
+/**
+ * 获取 实时行情 数据
+ */
+router.get('/realTimeQuotes', async (ctx, next) => {
+  const { symbol } = ctx.query;
+  const result = await axios.get(`${AKShareServiceURL}/stock/quote?symbol=${symbol}`)
+  ctx.body = result.data
+})
 
 module.exports = router;
+
