@@ -46,5 +46,31 @@ router.get('/realTimeQuotes', async (ctx, next) => {
   ctx.body = result.data
 })
 
+/**
+ * 获取 资讯（财联社） 数据
+ */
+router.get('/news/cls', async (ctx, next) => {
+  const symbol = ctx.query?.symbol || '全部';
+  const result = await axios.get(`${AKShareServiceURL}/stock/news/cls?symbol=${symbol}`)
+  /**
+   * 数据过滤（根据时间戳去重、倒序，只返回前50条数据）
+   */
+  if (result.data?.data.length) {
+    result.data.data.reverse()
+    let uniqueData = [];
+    let seenTimestamps = new Set();
+    for (let item of result.data.data) {
+      if (!seenTimestamps.has(item['发布时间'])) {
+        uniqueData.push(item);
+        seenTimestamps.add(item['发布时间']);
+      }
+    }
+    result.data.data = uniqueData.slice(0, 50);
+  }
+
+  ctx.body = result.data
+})
+
+
 module.exports = router;
 
