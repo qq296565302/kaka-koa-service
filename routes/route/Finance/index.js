@@ -60,7 +60,8 @@ router.get('/news/cls', async (ctx, next) => {
     let uniqueData = [];
     let seenTimestamps = new Set();
     for (let item of result.data.data) {
-      if (!seenTimestamps.has(item['发布时间'])) {
+      if (!seenTimestamps.has(item['发布时间']) && !item['标题'].includes('盘中宝')) {
+        item['内容'] = item['内容'].replace(item['标题'], '').replace('【】', '').trim()
         uniqueData.push(item);
         seenTimestamps.add(item['发布时间']);
       }
