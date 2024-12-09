@@ -54,41 +54,34 @@ const clsNewsData = {
   updatedCount: 0
 }
 const getClsNews = async (symbol = '全部') => {
-  const result = await axios.get(`${AKShareServiceURL}/stock/news/cls?symbol=${symbol}`)
-  if (result.data?.data.length) {
-    // 数据清洗
-    const clsNews = await handleClsNews(result.data.data)
-    if (!clsNewsData.data.length) {
-      clsNewsData.data = clsNews
-      clsNewsData.updatedCount = clsNews.length
-    } else {
-      const lastNewsTime = clsNewsData.data[0]['发布时间']
-      const lastNewsIndex = clsNews.findIndex(item => item['发布时间'] === lastNewsTime)
-      if (lastNewsIndex > 0) {
-        clsNewsData.data = clsNews.slice(0, lastNewsIndex).concat(clsNewsData.data)
-        clsNewsData.updatedCount = lastNewsIndex
-      } else {
-        clsNewsData.updatedCount = 0
-      }
-    }
+  try {
+    const { data } = await axios.get(`${AKShareServiceURL}/stock/news/cls?symbol=${symbol}`)
+    const clsNews = await handleClsNews(data.data)
+    const lastNewsTime = clsNewsData.data[0]?.[' '] || ''
+    const lastNewsIndex = clsNews.findIndex(item => item[' '] === lastNewsTime)
+    clsNewsData.data = lastNewsIndex > 0
+      ? clsNews.slice(0, lastNewsIndex).concat(clsNewsData.data)
+      : clsNews
+    clsNewsData.updatedCount = lastNewsIndex > 0 ? lastNewsIndex : 0
+  } catch (error) {
+    console.error('Error fetching CLS news:', error)
   }
 }
 // 处理 cls 数据
 const handleClsNews = async (rawData) => {
-  rawData.reverse()
-  let uniqueData = []
-  let seenTimestamps = new Set();
-  for (let item of rawData) {
-    // 判断条件
-    const condition = !seenTimestamps.has(item['发布时间']) && !item['标题'].includes('盘中宝') && !item['标题'].includes('电报解读')
-    // 如果为真
+  const seenTimestamps = new Set();
+  
+  return rawData.reverse().filter(item => {
+    const { '发布时间': timestamp, '标题': title, '内容': content } = item;
+    const condition = !seenTimestamps.has(timestamp) && !title.includes('盘中宝') && !title.includes('电报解读');
+    
     if (condition) {
-      item['内容'] = item['内容'].replace(item['标题'], '').replace('【】', '').replace(/财联社\d{1,2}月\d{1,2}日电，/g, '').trim()
-      uniqueData.push(item);
-      seenTimestamps.add(item['发布时间']);
+      item['内容'] = content.replace(title, '').replace('【】', '').replace(/财联社\d{1,2}月\d{1,2}日电，/g, '').trim();
+      seenTimestamps.add(timestamp);
+      return true;
     }
-  }
-  return uniqueData
+    return false;
+  });
 }
 
 router.get('/news/cls', async (ctx, next) => {
@@ -109,4 +102,3 @@ const clsNewsTimer = setInterval(async () => {
 getClsNews()
 
 module.exports = router;
-
