@@ -1,55 +1,48 @@
 const Router = require("koa-router");
 const router = new Router();
+const axios = require("axios");
+const { AKShareServiceURL } = require("../../../utils/constants");
 
 // 模块路由前缀
 router.prefix("/finance");
 
-router.get("/", function (ctx, next) {
-  ctx.body = "this a finance response!";
-});
-
 /**
- * 调用 AKShare 接口
+ * 财联社新闻相关常量和配置
  */
-const axios = require("axios");
-// ? 京东云服务地址
-const AKShareServiceURL = "http://116.196.75.89:5000/api/public";
-
-/**
- * ? 获取 资讯（财联社） 数据
- */
+// 定义需要排除的关键词列表
+const EXCLUDED_KEYWORDS = ["盘中宝", "电报解读", "掘金行业龙头"];
+// 新闻数据缓存
 const clsNewsData = {
   data: [],
   updatedCount: 0,
+  lastFetchTime: null,
 };
-const getClsNews = async (symbol = "全部") => {
-  try {
-    const result = await axios.get(`${AKShareServiceURL}/stock_info_global_cls?symbol=${symbol}`);
-    const clsNews = await handleClsNews(result.data);
-    const lastNewsTime = clsNewsData.data[0]?.[" "] || "";
-    const lastNewsIndex = clsNews.findIndex((item) => item[" "] === lastNewsTime);
-    clsNewsData.data = lastNewsIndex > 0 ? clsNews.slice(0, lastNewsIndex).concat(clsNewsData.data) : clsNews;
-    clsNewsData.updatedCount = lastNewsIndex > 0 ? lastNewsIndex : 0;
-  } catch (error) {
-    console.error("Error fetching CLS news:", error);
-  }
-};
-// ? 定义需要排除的关键词列表
-const EXCLUDED_KEYWORDS = ["盘中宝", "电报解读", "掘金行业龙头"];
-// ? 处理 cls 数据
-const handleClsNews = async (rawData) => {
+// 定时获取数据的间隔时间（2分钟）
+const FETCH_INTERVAL = 2 * 60 * 1000;
+
+/**
+ * 处理财联社新闻数据
+ * @param {Array} rawData - 原始新闻数据
+ * @returns {Array} - 处理后的新闻数据
+ */
+const handleClsNews = (rawData) => {
   const seenTimestamps = new Set();
 
   return rawData.reverse().filter((item) => {
-    const { 发布时间: timestamp, 标题: title, 内容: content } = item;
-
-    // ? 分解条件为具有语义的变量
+    const { 发布日期: publishDate, 发布时间: publishTime, 标题: title, 内容: content } = item;
+    
+    // 合并日期和时间，并转换为时间戳
+    const combinedDateTime = `${publishDate.split('T')[0]}T${publishTime}`;
+    const timestamp = new Date(combinedDateTime).getTime();
+    
+    // 将时间戳添加到数据中
+    item['发布时间'] = timestamp;
+    
+    // 分解条件为具有语义的变量
     const isNewTimestamp = !seenTimestamps.has(timestamp);
     const isValidTitle = EXCLUDED_KEYWORDS.every((keyword) => !title.includes(keyword));
 
-    const condition = isNewTimestamp && isValidTitle;
-
-    if (condition) {
+    if (isNewTimestamp && isValidTitle) {
       item["内容"] = content
         .replace(title, "")
         .replace("【】", "")
@@ -62,21 +55,81 @@ const handleClsNews = async (rawData) => {
   });
 };
 
-router.get("/news/cls", async (ctx, next) => {
+/**
+ * 获取财联社新闻数据
+ * @param {string} symbol - 股票代码，默认为"全部"
+ * @returns {Promise<void>}
+ */
+const getClsNews = async (symbol = "全部") => {
+  try {
+    const url = `${AKShareServiceURL}/stock_info_global_cls?symbol=${symbol}`;
+    const response = await axios.get(url, { timeout: 10000 });
+
+    if (!response.data || !Array.isArray(response.data)) {
+      console.error("获取财联社新闻数据格式错误:", response.data);
+      return;
+    }
+
+    const clsNews = handleClsNews(response.data);
+    const lastNewsTime = clsNewsData.data[0]?.["发布时间"] || "";
+    const lastNewsIndex = clsNews.findIndex((item) => item["发布时间"] === lastNewsTime);
+
+    // 更新数据和计数
+    if (lastNewsIndex > 0) {
+      // 有新数据，将新数据添加到现有数据前面
+      clsNewsData.data = clsNews.slice(0, lastNewsIndex).concat(clsNewsData.data);
+      clsNewsData.updatedCount = lastNewsIndex; // 新增的数量就是到上次最新数据的索引
+    } else if (lastNewsIndex === -1) {
+      // 没有找到匹配的时间戳，说明全部都是新数据
+      clsNewsData.data = clsNews;
+      clsNewsData.updatedCount = clsNews.length;
+    } else {
+      // lastNewsIndex === 0，没有新数据
+      clsNewsData.updatedCount = 0;
+    }
+    
+    clsNewsData.lastFetchTime = new Date();
+
+    console.log(`成功获取财联社新闻数据: ${clsNews.length} 条, 新增 ${clsNewsData.updatedCount} 条, 更新标题: ${clsNewsData.data[0]?.["标题"]}`);
+  } catch (error) {
+    console.error("获取财联社新闻数据失败:", error.message);
+  }
+};
+
+/**
+ * 获取财联社新闻数据的路由
+ */
+router.get("/news/cls", async (ctx) => {
+  // 如果数据超过5分钟未更新，则立即更新一次
+  const now = new Date();
+  const fiveMinutes = 5 * 60 * 1000;
+  if (!clsNewsData.lastFetchTime || now - clsNewsData.lastFetchTime > fiveMinutes) {
+    await getClsNews();
+  }
+
   ctx.body = {
     code: 200,
     data: clsNewsData.data,
     count: clsNewsData.updatedCount,
+    lastUpdate: clsNewsData.lastFetchTime,
   };
   clsNewsData.updatedCount = 0;
 });
 
 /**
- * 定时执行 爬取 资讯（财联社） 数据
+ * 定时执行爬取财联社新闻数据
  */
 const clsNewsTimer = setInterval(async () => {
   await getClsNews();
-}, 1000 * 60);
-getClsNews();
+}, FETCH_INTERVAL);
+
+// 初始化获取数据
+getClsNews().catch((err) => console.error("初始化获取财联社新闻数据失败:", err.message));
+
+// 确保在应用关闭时清除定时器
+process.on("SIGINT", () => {
+  clearInterval(clsNewsTimer);
+  process.exit(0);
+});
 
 module.exports = router;
