@@ -2,6 +2,7 @@ const Router = require("koa-router");
 const router = new Router();
 const axios = require("axios");
 const { AKShareServiceURL } = require("../../../utils/constants");
+const wsManager = require("../../../utils/websocketManager");
 
 // 模块路由前缀
 router.prefix("/finance");
@@ -79,10 +80,31 @@ const getClsNews = async (symbol = "全部") => {
       // 有新数据，将新数据添加到现有数据前面
       clsNewsData.data = clsNews.slice(0, lastNewsIndex).concat(clsNewsData.data);
       clsNewsData.updatedCount = lastNewsIndex; // 新增的数量就是到上次最新数据的索引
+      
+      // 通过 WebSocket 发送新闻更新通知
+      const newNews = clsNews.slice(0, lastNewsIndex);
+      wsManager.broadcast({
+        type: 'cls_news_update',
+        data: {
+          count: lastNewsIndex,
+          latestNews: newNews[0],
+          updateTime: new Date().toISOString()
+        }
+      });
     } else if (lastNewsIndex === -1) {
       // 没有找到匹配的时间戳，说明全部都是新数据
       clsNewsData.data = clsNews;
       clsNewsData.updatedCount = clsNews.length;
+      
+      // 通过 WebSocket 发送新闻更新通知
+      wsManager.broadcast({
+        type: 'cls_news_update',
+        data: {
+          count: clsNews.length,
+          latestNews: clsNews[0],
+          updateTime: new Date().toISOString()
+        }
+      });
     } else {
       // lastNewsIndex === 0，没有新数据
       clsNewsData.updatedCount = 0;

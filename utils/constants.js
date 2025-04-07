@@ -3,7 +3,7 @@
  */
 
 // AKShare 服务地址
-const AKShareServiceURL = "http://116.196.75.89:5000/api/public";
+const AKShareServiceURL = "http://47.94.196.217:8080/api/public";
 
 module.exports = {
   AKShareServiceURL
