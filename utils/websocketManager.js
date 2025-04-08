@@ -1,3 +1,4 @@
+const logger = require('./logger');
 /**
  * WebSocket 连接管理器
  * 用于存储和管理所有活跃的 WebSocket 连接
@@ -12,7 +13,7 @@ const connections = new Set();
  */
 const addConnection = (ws) => {
   connections.add(ws);
-  console.log(`WebSocket 连接已添加，当前连接数: ${connections.size}`);
+  logger.info(`WebSocket 连接已添加，当前连接数: ${connections.size}`);
 };
 
 /**
@@ -21,7 +22,7 @@ const addConnection = (ws) => {
  */
 const removeConnection = (ws) => {
   connections.delete(ws);
-  console.log(`WebSocket 连接已移除，当前连接数: ${connections.size}`);
+  logger.info(`WebSocket 连接已移除，当前连接数: ${connections.size}`);
 };
 
 /**
@@ -39,11 +40,11 @@ const broadcast = (data) => {
         successCount++;
       }
     } catch (error) {
-      console.error('发送 WebSocket 消息失败:', error);
+      logger.error('发送 WebSocket 消息失败:', error);
     }
   });
   
-  console.log(`WebSocket 广播消息成功发送到 ${successCount}/${connections.size} 个连接`);
+  logger.info(`WebSocket 广播消息成功发送到 ${successCount}/${connections.size} 个连接`);
 };
 
 module.exports = {

@@ -3,12 +3,32 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const websockify = require('koa-websocket');
 const wsManager = require('./utils/websocketManager');
+const logger = require('./utils/logger');
 
 const app = websockify(new Koa());
 const router = require("./routes/index");
 
 // 使用 bodyParser 中间件
 app.use(bodyParser());
+
+// 添加请求日志中间件
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  logger.info(`${ctx.method} ${ctx.url} - ${ms}ms`);
+});
+
+// 错误处理中间件
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    logger.error(`[${ctx.method} ${ctx.url}] ${err.stack}`);
+    ctx.status = err.status || 500;
+    ctx.body = { error: err.message };
+  }
+});
 
 // 定义一个简单的路由
 router.get('/', async (ctx) => {
@@ -28,18 +48,19 @@ app.ws.use((ctx) => {
     let messageContent;
     if (Buffer.isBuffer(message)) {
       messageContent = message.toString('utf8');
-      console.log('Buffer转换后的消息:', messageContent);
     } else {
       messageContent = message;
     }
-    
-    // 回应消息
-    ctx.websocket.send(`收到: ${messageContent}`);
+    console.log(messageContent);
+
+    if(messageContent === 'ping') {
+      ctx.websocket.send('ping');
+    }
   });
 
   // 监听连接关闭事件
   ctx.websocket.on('close', () => {
-    console.log('连接已关闭');
+    logger.info('WebSocket 连接已关闭');
     wsManager.removeConnection(ctx.websocket);
   });
 });
@@ -47,7 +68,7 @@ app.ws.use((ctx) => {
 // 启动服务器
 const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {
-  console.log(`Koa 和 WebSocket 服务器已启动，监听端口 ${PORT}`);
+  logger.info(`Koa 和 WebSocket 服务器已启动，监听端口 ${PORT}`);
 });
 
 module.exports = app;
