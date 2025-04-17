@@ -23,10 +23,13 @@ const getTradeCalendar = async () => {
     }
 };
 /**
- * 获取服务器时间
+ * 获取服务器时间（北京时间）
+ * @returns {string} - 北京时间字符串
  */
 const getServerTime = () => {
-    return new Date().toISOString();
+    const date = new Date();
+    // 转换为北京时间 (UTC+8)
+    return new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().replace('Z', '+08:00');
 };
 
 module.exports = {

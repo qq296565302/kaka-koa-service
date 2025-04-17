@@ -51,10 +51,23 @@ app.ws.use((ctx) => {
     } else {
       messageContent = message;
     }
-    console.log(messageContent);
 
     if(messageContent === 'ping') {
       ctx.websocket.send('ping');
+      return;
+    }
+    
+    // 引入并使用quotesService中的消息处理函数
+    try {
+      const quotesService = require('./routes/route/Finance/quotesService');
+      if (typeof quotesService.handleClientMessage === 'function') {
+        const response = quotesService.handleClientMessage(messageContent);
+        if (response) {
+          ctx.websocket.send(JSON.stringify(response));
+        }
+      }
+    } catch (error) {
+      logger.error('处理WebSocket消息失败:', error);
     }
   });
 
