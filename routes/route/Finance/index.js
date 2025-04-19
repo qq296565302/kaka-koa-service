@@ -7,7 +7,7 @@ const {
   getClsNews,
   startClsNewsTimer
 } = require("./clsNewsService");
-const { getAStockQuotes } = require("./quotesService");
+const { getIndexQuotes } = require("./quotesService");
 const { getServerTime, getTradeCalendar } = require("./common");
 // 模块路由前缀
 router.prefix("/finance");
@@ -50,13 +50,13 @@ router.get("/news/cls", async (ctx) => {
 startClsNewsTimer();
 
 /**
- * 获取A股实时行情数据
+ * 获取全指数
  */
-router.get("/quotes/a-stock", async (ctx) => {
-  const quotes = await getAStockQuotes();
+router.get("/quotes/all", async (ctx) => {
+  const quotes = await getIndexQuotes();
   ctx.body = {
     code: 200,
-    data: quotes.slice(0, 100)
+    data: quotes
   };
 });
 
