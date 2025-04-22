@@ -6,7 +6,8 @@ const {
   isDataStale,
   getClsNews,
   startClsNewsTimer
-} = require("./clsNewsService");
+} = require("./clsNewsService"); // 财联社新闻服务
+const { getSina7x24,getSina7x24Data } = require("./sina7x24Service"); // 新浪7x24服务
 const { getIndexQuotes } = require("./quotesService");
 const { getServerTime, getTradeCalendar } = require("./common");
 // 模块路由前缀
@@ -50,6 +51,18 @@ router.get("/news/cls", async (ctx) => {
 startClsNewsTimer();
 
 /**
+ * 获取新浪财经数据
+ */
+router.get("/news/sina", async (ctx) => {
+  const data = await getSina7x24();
+  console.log('获取新浪财经数据成功',data);
+  ctx.body = {
+    code: 200,
+    data: data
+  };
+});
+
+/**
  * 获取全指数
  */
 router.get("/quotes/all", async (ctx) => {
@@ -59,6 +72,7 @@ router.get("/quotes/all", async (ctx) => {
     data: quotes
   };
 });
+
 
 // 导出路由模块
 module.exports = {
