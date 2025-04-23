@@ -32,7 +32,7 @@ const removeConnection = (ws) => {
 const broadcast = (data) => {
   const message = typeof data === 'string' ? data : JSON.stringify(data);
   let successCount = 0;
-  
+  console.log('当前连接数:', connections.size);
   connections.forEach((ws) => {
     try {
       if (ws.readyState === 1) { // WebSocket.OPEN
