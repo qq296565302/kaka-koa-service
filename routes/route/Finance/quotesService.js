@@ -6,43 +6,38 @@ const { AKShareServiceURL } = require("../../../utils/constants");
 const wsManager = require("../../../utils/websocketManager");
 const { saveState, loadState } = require("../../../utils/stateStorage");
 
-// 指数行情
-const getIndexQuotes = async (symbol="沪深重要指数") => {
+
+/**
+ * 获取公共行情（上证指数、深证指数、创业板指数、科创50）
+ * 上证指数 SH000001
+ * 深证指数 SZ399001
+ * 创业板指数 SZ399006
+ * 科创50 SH000688
+ */
+let publicQuotesData = [];
+const getPublicQuotes = async () => {
+    const publicQuotes = ['SH000001', 'SZ399001', 'SZ399006', 'SH000688'];
     try {
-        const response = await axios.get(`${AKShareServiceURL}/stock_zh_index_spot_em?symbol=${symbol}`);
-        return response.data; // 只返回响应数据，而不是整个响应对象
+        const responses = await Promise.all(publicQuotes.map(symbol => {
+            const url = `${AKShareServiceURL}/stock_individual_spot_xq?symbol=${symbol}`;
+            return axios.get(url, { timeout: 10000 });
+        }));
+        return responses.map(response => response.data);
     } catch (error) {
-        console.error("获取指数行情数据失败:", error.message);
+        console.error("获取公共行情数据失败:", error.message);
         return [];
     }
 };
+getPublicQuotes().then(data => publicQuotesData.push(...data));
 
-const broadcastIndexQuotes = async () => {
-    const indexQuotes = await getIndexQuotes();
+const broadcastPublicQuotes = async () => {
+    publicQuotesData = await getPublicQuotes();
     wsManager.broadcast({
-        type: 'indexQuotes',
-        data: indexQuotes
+        type: 'public_quotes_update',
+        data: publicQuotesData
     });
 };
 
-let quotesType = {
-    shanghaiStockQuotes: 'stock_sh_a_spot_em'
-};
-// 沪A股实时行情（所有个股）
-let shanghaiStockQuotes = [];
-const getShanghaiStockQuotes = async () => {
-    try {
-        const response = await axios.get(`${AKShareServiceURL}/${quotesType.shanghaiStockQuotes}`);
-        return response;
-    } catch (error) {
-        console.error("获取A股实时行情数据失败:", error.message);
-        return [];
-    }
-};
-
-
-
-// 交易状态 - 从存储中加载初始状态，如果没有则默认为'0'
 let tradeStatus = '0';
 
 // 尝试从存储加载交易状态
@@ -73,7 +68,7 @@ const handleClientMessage = (message) => {
             // 保存交易状态到文件
             saveState({ tradeStatus });
             console.log('交易状态已更新并保存:', tradeStatus);
-            
+
             if (tradeStatus === '1') {
                 broadcastIndexQuotes();
             }
@@ -81,22 +76,21 @@ const handleClientMessage = (message) => {
     }
     return null;
 };
+
 module.exports = {
     tradeStatus,
-    shanghaiStockQuotes,
-    getShanghaiStockQuotes,
-    handleClientMessage,
-    getIndexQuotes
+    getPublicQuotes,
+    handleClientMessage
 };
 
 // 每5秒钟自动获取一次实时行情数据
 
 let quotesTimer = setInterval(async () => {
     if (tradeStatus === '1') {
-        broadcastIndexQuotes();
+        broadcastPublicQuotes();
     }
 }, 5000);
 
-process.on('exit', () => {
+process.on("exit", () => {
     clearInterval(quotesTimer);
 });

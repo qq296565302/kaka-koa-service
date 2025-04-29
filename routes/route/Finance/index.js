@@ -7,8 +7,8 @@ const {
   getClsNews,
   startClsNewsTimer
 } = require("./clsNewsService"); // 财联社新闻服务
-const { getSina7x24, getSina7x24Data, startSina7x24Timer,isSinaDataStale,resetSinaUpdateCount } = require("./sina7x24Service"); // 新浪7x24服务
-const { getIndexQuotes } = require("./quotesService");
+const { getSina7x24, getSina7x24Data, startSina7x24Timer, isSinaDataStale, resetSinaUpdateCount } = require("./sina7x24Service"); // 新浪7x24服务
+const { getPublicQuotes } = require("./quotesService");
 const { getServerTime, getTradeCalendar } = require("./common");
 // 模块路由前缀
 router.prefix("/finance");
@@ -70,13 +70,14 @@ router.get("/news/sina", async (ctx) => {
 startSina7x24Timer();
 
 /**
- * 获取全指数
+ * 获取公共指数数据
  */
-router.get("/quotes/all", async (ctx) => {
-  const quotes = await getIndexQuotes();
+router.get("/quotes/public", async (ctx) => {
+  console.log("获取公共指数数据");
+  const data = await getPublicQuotes();
   ctx.body = {
     code: 200,
-    data: quotes
+    data
   };
 });
 
