@@ -8,7 +8,7 @@ const {
   startClsNewsTimer
 } = require("./clsNewsService"); // 财联社新闻服务
 const { getSina7x24, getSina7x24Data, startSina7x24Timer, isSinaDataStale, resetSinaUpdateCount } = require("./sina7x24Service"); // 新浪7x24服务
-const { getPublicQuotes } = require("./quotesService");
+const { getPublicQuotes, getDcOrderData } = require("./quotesService");
 const { getServerTime, getTradeCalendar } = require("./common");
 // 模块路由前缀
 router.prefix("/finance");
@@ -81,6 +81,17 @@ router.get("/quotes/public", async (ctx) => {
   };
 });
 
+/**
+ * 获取东财日內分时买卖盘数据
+ */
+router.get("/quotes/dc-order", async (ctx) => {
+  console.log("获取东财日內分时买卖盘数据");
+  const data = await getDcOrderData();
+  ctx.body = {
+    code: 200,
+    data
+  };
+});
 
 // 导出路由模块
 module.exports = {
