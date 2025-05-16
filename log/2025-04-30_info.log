@@ -2982,3 +2982,82 @@
 [2025-04-30 16:08:22] WebSocket 连接已添加，当前连接数: 1
 [2025-04-30 16:10:20] WebSocket 广播消息成功发送到 1/1 个连接
 [2025-04-30 16:10:20] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 16:10:35] WebSocket 连接已关闭
+[2025-04-30 16:10:35] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 16:12:03] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 16:12:03] GET /api/finance/time - 2ms
+[2025-04-30 16:12:03] GET /api/finance/news/cls - 0ms
+[2025-04-30 16:12:04] GET /api/finance/quotes/public - 386ms
+[2025-04-30 16:12:06] GET /api/finance/trade-calendar - 2265ms
+[2025-04-30 16:12:06] GET /api/finance/quotes/dc-order - 2750ms
+[2025-04-30 16:12:07] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 16:12:07] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 16:12:07] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 16:12:10] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 16:12:40] WebSocket 连接已关闭
+[2025-04-30 16:12:40] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 22:25:36] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 22:25:36] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:37] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:37] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:25:40] WebSocket 连接已关闭
+[2025-04-30 22:25:40] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 22:25:40] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:25:40] GET /api/finance/time - 0ms
+[2025-04-30 22:25:40] GET /api/finance/news/cls - 0ms
+[2025-04-30 22:25:41] GET /api/finance/quotes/public - 425ms
+[2025-04-30 22:25:43] GET /api/finance/trade-calendar - 2969ms
+[2025-04-30 22:25:44] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 22:25:44] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:44] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:46] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:25:50] WebSocket 连接已关闭
+[2025-04-30 22:25:50] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 22:25:50] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:25:50] GET /api/finance/time - 1ms
+[2025-04-30 22:25:50] GET /api/finance/news/cls - 1ms
+[2025-04-30 22:25:50] GET /api/finance/quotes/public - 434ms
+[2025-04-30 22:25:53] GET /api/finance/quotes/dc-order - 3171ms
+[2025-04-30 22:25:53] GET /api/finance/trade-calendar - 3343ms
+[2025-04-30 22:25:54] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 22:25:54] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:54] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:25:57] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:27:49] WebSocket 连接已关闭
+[2025-04-30 22:27:49] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 22:27:54] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:28:29] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:28:29] GET /api/finance/time - 1ms
+[2025-04-30 22:28:29] GET /api/finance/news/cls - 1ms
+[2025-04-30 22:28:29] GET /api/finance/quotes/public - 262ms
+[2025-04-30 22:28:29] GET /api/finance/trade-calendar - 302ms
+[2025-04-30 22:28:30] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 22:28:31] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:28:31] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:28:33] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:28:39] WebSocket 连接已关闭
+[2025-04-30 22:28:39] WebSocket 连接已移除，当前连接数: 0
+[2025-04-30 22:28:39] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:28:39] GET /api/finance/time - 1ms
+[2025-04-30 22:28:40] GET /api/finance/news/cls - 0ms
+[2025-04-30 22:28:40] GET /api/finance/quotes/public - 234ms
+[2025-04-30 22:28:42] GET /api/finance/quotes/dc-order - 3014ms
+[2025-04-30 22:28:43] GET /api/finance/trade-calendar - 3313ms
+[2025-04-30 22:28:44] Koa 和 WebSocket 服务器已启动，监听端口 3300
+[2025-04-30 22:28:44] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:28:44] WebSocket 广播消息成功发送到 0/0 个连接
+[2025-04-30 22:28:46] WebSocket 连接已添加，当前连接数: 1
+[2025-04-30 22:28:56] GET /api/finance/news/sina - 3ms
+[2025-04-30 22:30:04] GET /api/finance/news/sina - 0ms
+[2025-04-30 22:30:04] GET /api/finance/news/cls - 0ms
+[2025-04-30 22:30:31] GET /api/finance/news/cls - 0ms
+[2025-04-30 22:30:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:32:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:32:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:34:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:34:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:36:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:36:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:38:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:38:44] WebSocket 广播消息成功发送到 1/1 个连接
+[2025-04-30 22:39:05] GET /api/finance/news/sina - 0ms

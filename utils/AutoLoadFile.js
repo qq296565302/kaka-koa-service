@@ -16,6 +16,7 @@ const autoLoadFile = (
 ) => {
   // 存储找到的文件路径
   const filesList = [];
+
   // 递归读取文件
   function readFileList(directory, useSubdirectories, extList) {
     // 同步读取指定目录下的所有文件和目录

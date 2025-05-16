@@ -8,7 +8,7 @@ const {
   startClsNewsTimer
 } = require("./clsNewsService"); // 财联社新闻服务
 const { getSina7x24, getSina7x24Data, startSina7x24Timer, isSinaDataStale, resetSinaUpdateCount } = require("./sina7x24Service"); // 新浪7x24服务
-const { getPublicQuotes, getDcOrderData } = require("./quotesService");
+const { getPublicQuotes,getPublicQuotesHistory, getDcOrderData } = require("./quotesService");
 const { getServerTime, getTradeCalendar } = require("./common");
 // 模块路由前缀
 router.prefix("/finance");
@@ -68,6 +68,18 @@ router.get("/news/sina", async (ctx) => {
 
 // 启动新浪财经数据定时获取服务
 startSina7x24Timer();
+
+/**
+ * 获取指数分时行情数据
+ */
+router.get("/quotes/intraday", async (ctx) => {
+  const data = await getPublicQuotesHistory();
+  ctx.body = {
+    code: 200,
+    data
+  };
+});
+
 
 /**
  * 获取公共指数数据

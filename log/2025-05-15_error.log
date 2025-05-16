@@ -1,0 +1,13 @@
+[2025-05-15 09:30:08] 处理WebSocket消息失败:
+[2025-05-15 13:00:08] 处理WebSocket消息失败:
+[2025-05-15 21:08:11] [GET /api/finance/quotes/public] TypeError: getPublicQuotes is not a function
+    at D:\KaKaRoot\kaka-koa-service\routes\route\Finance\index.js:89:22
+    at dispatch (D:\KaKaRoot\kaka-koa-service\node_modules\koa-compose\index.js:42:32)
+    at D:\KaKaRoot\kaka-koa-service\node_modules\koa-router\lib\router.js:261:18
+    at dispatch (D:\KaKaRoot\kaka-koa-service\node_modules\koa-compose\index.js:42:32)
+    at D:\KaKaRoot\kaka-koa-service\node_modules\koa-compose\index.js:34:12
+    at dispatch (D:\KaKaRoot\kaka-koa-service\node_modules\koa-router\lib\router.js:266:33)
+    at dispatch (D:\KaKaRoot\kaka-koa-service\node_modules\koa-compose\index.js:42:32)
+    at D:\KaKaRoot\kaka-koa-service\app.js:25:11
+    at dispatch (D:\KaKaRoot\kaka-koa-service\node_modules\koa-compose\index.js:42:32)
+    at D:\KaKaRoot\kaka-koa-service\app.js:17:9
