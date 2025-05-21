@@ -4,6 +4,7 @@ const bodyParser = require('koa-bodyparser');
 const websockify = require('koa-websocket');
 const wsManager = require('./utils/websocketManager');
 const logger = require('./utils/logger');
+const { saveState, loadState } = require('./utils/stateStorage');
 
 const app = websockify(new Koa());
 const router = require("./routes/index");
@@ -57,14 +58,11 @@ app.ws.use((ctx) => {
       return;
     }
     
-    // 引入并使用quotesService中的消息处理函数
+    // 处理客户端消息
     try {
-      const quotesService = require('./routes/route/Finance/quotesService');
-      if (typeof quotesService.handleClientMessage === 'function') {
-        const response = quotesService.handleClientMessage(messageContent);
-        if (response) {
-          ctx.websocket.send(JSON.stringify(response));
-        }
+      const response = handleClientMessage(messageContent);
+      if (response) {
+        ctx.websocket.send(JSON.stringify(response));
       }
     } catch (error) {
       logger.error('处理WebSocket消息失败:', error);
@@ -84,4 +82,50 @@ app.listen(PORT, () => {
   logger.info(`Koa 和 WebSocket 服务器已启动，监听端口 ${PORT}`);
 });
 
-module.exports = app;
+// 定义处理客户端消息的函数
+const handleClientMessage = (message) => {
+  let msg;
+  try {
+    msg = JSON.parse(message);
+  } catch (e) {
+    msg = message; // 非JSON，直接使用原内容
+  }
+  if (msg && msg.type) {
+    console.log("消息类型:", msg.type);
+    
+    // 调用消息处理器处理不同类型的消息
+    return handleMessageByType(msg);
+  }
+  return null;
+};
+
+// 根据消息类型处理不同请求的方法
+const handleMessageByType = (msg) => {
+  const quotesService = require('./routes/route/Finance/quotesService');
+  
+  switch(msg.type) {
+    case "tradeStatusChange":
+      quotesService.tradeStatus = msg.data.status;
+      // 保存交易状态到文件
+      saveState({ tradeStatus: quotesService.tradeStatus });
+      console.log("交易状态已更新并保存:", quotesService.tradeStatus);
+
+      if (quotesService.tradeStatus === "1") {
+        // 交易状态变为开启时的操作
+        quotesService.broadcastPublicQuotes && quotesService.broadcastPublicQuotes();
+      }
+      break;
+    // 可以在这里添加更多消息类型的处理
+    default:
+      console.log("未知的消息类型:", msg.type);
+      break;
+  }
+  
+  return null;
+};
+
+module.exports = {
+  app,
+  handleClientMessage,
+  handleMessageByType
+};

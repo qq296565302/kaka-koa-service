@@ -181,38 +181,14 @@ try {
   console.error("加载交易状态失败:", error);
 }
 
-// 定义处理客户端消息的函数
-const handleClientMessage = (message) => {
-  let msg;
-  try {
-    msg = JSON.parse(message);
-  } catch (e) {
-    msg = message; // 非JSON，直接使用原内容
-  }
-  if (msg && msg.type) {
-    console.log("消息类型:", msg.type);
-
-    // 根据消息类型处理不同请求
-    if (msg.type === "tradeStatusChange") {
-      tradeStatus = msg.data.status;
-      // 保存交易状态到文件
-      saveState({ tradeStatus });
-      console.log("交易状态已更新并保存:", tradeStatus);
-
-      if (tradeStatus === "1") {
-        broadcastIndexQuotes();
-      }
-    }
-  }
-  return null;
-};
+// handleClientMessage 函数已移至 app.js
 
 module.exports = {
   tradeStatus, // * 交易状态
   getPublicQuotes,
   getPublicQuotesHistory,
   getSZQuotes, // * 获取深圳个股实时数据
-  handleClientMessage,
+  broadcastPublicQuotes, // * 广播公共行情数据
 };
 
 // 每5秒钟自动获取一次实时行情数据
