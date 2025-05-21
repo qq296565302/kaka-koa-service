@@ -60,7 +60,7 @@ app.ws.use((ctx) => {
     
     // 处理客户端消息
     try {
-      const response = handleClientMessage(messageContent);
+      const response = app.handleClientMessage(messageContent);
       if (response) {
         ctx.websocket.send(JSON.stringify(response));
       }
@@ -124,8 +124,8 @@ const handleMessageByType = (msg) => {
   return null;
 };
 
-module.exports = {
-  app,
-  handleClientMessage,
-  handleMessageByType
-};
+// 导出消息处理函数
+app.handleClientMessage = handleClientMessage;
+app.handleMessageByType = handleMessageByType;
+
+module.exports = app;
