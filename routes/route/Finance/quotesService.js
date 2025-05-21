@@ -31,7 +31,6 @@ const getPublicQuotesHistory = async (
 ) => {
   if (!start_date) {
     // 使用东八区时间
-    console.log(tradeCalendar);
     const today = new Date().toISOString();
     const isTradingDay = tradeCalendar.some(
       (item) => item.trade_date === today
@@ -77,55 +76,93 @@ const broadcastPublicQuotesHistory = async () => {
   }
 };
 
+const getPublicQuotes = async () => {
+  try {
+    const url = `${AKShareServiceURL}/stock_zh_index_spot_em?symbol=沪深重要指数`;
+    const response = await axios.get(url, { timeout: 10000 });
+    return response.data.splice(0,4);
+  } catch (error) {
+    console.error("获取公共行情数据失败:", error.message);
+    return [];
+  }
+};
+
+const broadcastPublicQuotes = async () => {
+  const publicQuotesData = await getPublicQuotes();
+  wsManager.broadcast({
+    type: "public_quotes_update",
+    data: publicQuotesData,
+  });
+};
 
 // 获取深圳个股实时数据 （东方财富）
 async function getSZQuotes() {
   try {
-    const fs = require('fs');
-    const path = require('path');
+    const fs = require("fs");
+    const path = require("path");
     const url = `${AKShareServiceURL}/stock_sz_a_spot_em`;
     const responses = await axios.get(url, { timeout: 10000 });
-    
+
     // 根据股票代码分类数据
     const szData = [];
     const cyData = [];
-    
+
     if (Array.isArray(responses.data)) {
-      responses.data.forEach(item => {
+      responses.data.forEach((item) => {
         // 检查股票代码
-        if (item.代码 && typeof item.代码 === 'string') {
+        if (item.代码 && typeof item.代码 === "string") {
           const code = item.代码;
-          if (code.startsWith('000')) {
+          if (code.startsWith("000")) {
             szData.push(item);
-          } else if (code.startsWith('300')) {
+          } else if (code.startsWith("300")) {
             cyData.push(item);
           }
         }
       });
-      
+
       // 确保目录存在
-      const dataDir = path.join(__dirname, '../../../data');
+      const dataDir = path.join(__dirname, "../../../data");
       if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
-      
+
       // 写入SZ数据
-      const szFilePath = path.join(dataDir, 'SZQuotes.json');
-      fs.writeFileSync(szFilePath, JSON.stringify({
-        time: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
-        data: szData
-      }, null, 2), 'utf8');
+      const szFilePath = path.join(dataDir, "SZQuotes.json");
+      fs.writeFileSync(
+        szFilePath,
+        JSON.stringify(
+          {
+            time: new Date().toLocaleString("zh-CN", {
+              timeZone: "Asia/Shanghai",
+            }),
+            data: szData,
+          },
+          null,
+          2
+        ),
+        "utf8"
+      );
       console.log(`已将000开头的股票数据存入 ${szFilePath}`);
-      
+
       // 写入CY数据
-      const cyFilePath = path.join(dataDir, 'CYQuotes.json');
-      fs.writeFileSync(cyFilePath, JSON.stringify({
-        time: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
-        data: cyData
-      }, null, 2), 'utf8');
+      const cyFilePath = path.join(dataDir, "CYQuotes.json");
+      fs.writeFileSync(
+        cyFilePath,
+        JSON.stringify(
+          {
+            time: new Date().toLocaleString("zh-CN", {
+              timeZone: "Asia/Shanghai",
+            }),
+            data: cyData,
+          },
+          null,
+          2
+        ),
+        "utf8"
+      );
       console.log(`已将300开头的股票数据存入 ${cyFilePath}`);
     }
-    
+
     return responses.data;
   } catch (error) {
     console.error("获取深圳个股实时数据失败:", error.message);
@@ -171,7 +208,8 @@ const handleClientMessage = (message) => {
 };
 
 module.exports = {
-  tradeStatus,
+  tradeStatus, // * 交易状态
+  getPublicQuotes,
   getPublicQuotesHistory,
   getSZQuotes, // * 获取深圳个股实时数据
   handleClientMessage,
@@ -181,7 +219,8 @@ module.exports = {
 
 let quotesTimer = setInterval(async () => {
   if (tradeStatus === "1") {
-    broadcastPublicQuotesHistory(); // 广播指数分时数据
+    // broadcastPublicQuotes(); // 广播公共行情数据
+    // broadcastPublicQuotesHistory(); // 广播指数分时数据
   }
 }, 5000);
 
