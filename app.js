@@ -8,6 +8,7 @@ const { saveState, loadState } = require('./utils/stateStorage');
 const eventBus = require('./utils/eventBus');
 const { registerAllHandlers } = require('./utils/messageHandlers');
 const { handleClientMessage } = require('./utils/messageProcessor');
+const { connectDB } = require('./config/db');
 
 const app = websockify(new Koa());
 const router = require("./routes/index");
@@ -79,10 +80,11 @@ app.ws.use((ctx) => {
   });
 });
 
-// 启动服务器
-const PORT = process.env.PORT || 3300;
-app.listen(PORT, () => {
-  logger.info(`Koa 和 WebSocket 服务器已启动，监听端口 ${PORT}`);
+// 连接到MongoDB数据库
+connectDB().then(() => {
+  logger.info('应用程序已准备就绪');
+}).catch(err => {
+  logger.error('应用程序启动失败:', err);
 });
 
 // 初始化所有消息处理器
