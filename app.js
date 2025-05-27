@@ -9,7 +9,7 @@ const eventBus = require('./utils/eventBus');
 const { registerAllHandlers } = require('./utils/messageHandlers');
 const { handleClientMessage } = require('./utils/messageProcessor');
 const { connectDB } = require('./config/db');
-
+const { saveTradeCalendar } = require('./routes/route/Finance/common');
 const app = websockify(new Koa());
 const router = require("./routes/index");
 
@@ -80,11 +80,19 @@ app.ws.use((ctx) => {
   });
 });
 
+const {isTradeCalendarStale} = require("./routes/route/Finance/common");
+
 // 连接到MongoDB数据库
-connectDB().then(() => {
-  logger.info('应用程序已准备就绪');
+connectDB().then(async() => {
+  const isTradeCalendarStaleFlag = await isTradeCalendarStale();
+  if(!isTradeCalendarStaleFlag) {
+    // 发布交易日历需要更新的事件
+    eventBus.publish("tradeCalendarUpdate", { needUpdate: true, timestamp: new Date() });
+    logger.info('交易日历需要更新，已发布更新事件');
+  }
+  logger.info('数据库连接成功');
 }).catch(err => {
-  logger.error('应用程序启动失败:', err);
+  logger.error('数据库连接失败:', err);
 });
 
 // 初始化所有消息处理器

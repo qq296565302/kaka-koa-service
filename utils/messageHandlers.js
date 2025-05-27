@@ -12,6 +12,9 @@ const { saveState } = require("./stateStorage");
 const registerAllHandlers = () => {
   // 注册交易状态变更处理器
   eventBus.subscribe("tradeStatusChange", handleTradeStatusChange);
+  
+  // 注册交易日历更新处理器
+  eventBus.subscribe("tradeCalendarUpdate", handleTradeCalendarUpdate);
 };
 
 /**
@@ -33,7 +36,28 @@ const handleTradeStatusChange = (data) => {
   }
 };
 
+/**
+ * 处理交易日历更新消息
+ * @param {Object} data - 消息数据
+ */
+const handleTradeCalendarUpdate = (data) => {
+  const { getTradeCalendar, saveTradeCalendar } = require("../routes/route/Finance/common");
+  logger.info("收到交易日历更新事件:", data);
+  
+  // 获取并保存最新的交易日历数据
+  getTradeCalendar().then(() => {
+    saveTradeCalendar().then(() => {
+      logger.info("交易日历数据已成功更新");
+    }).catch(err => {
+      logger.error("保存交易日历数据失败:", err);
+    });
+  }).catch(err => {
+    logger.error("获取交易日历数据失败:", err);
+  });
+};
+
 module.exports = {
   registerAllHandlers,
   handleTradeStatusChange,
+  handleTradeCalendarUpdate
 };
