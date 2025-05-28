@@ -15,6 +15,9 @@ const registerAllHandlers = () => {
   
   // 注册交易日历更新处理器
   eventBus.subscribe("tradeCalendarUpdate", handleTradeCalendarUpdate);
+
+  // 注册股票信息更新处理器
+  eventBus.subscribe("stockInfoUpdate", handleStockInfoUpdate);
 };
 
 /**
@@ -40,24 +43,49 @@ const handleTradeStatusChange = (data) => {
  * 处理交易日历更新消息
  * @param {Object} data - 消息数据
  */
-const handleTradeCalendarUpdate = (data) => {
+const handleTradeCalendarUpdate = async (data) => {
   const { getTradeCalendar, saveTradeCalendar } = require("../routes/route/Finance/common");
   logger.info("收到交易日历更新事件:", data);
   
   // 获取并保存最新的交易日历数据
-  getTradeCalendar().then(() => {
-    saveTradeCalendar().then(() => {
+  try {
+    await getTradeCalendar();
+    try {
+      await saveTradeCalendar();
       logger.info("交易日历数据已成功更新");
-    }).catch(err => {
+    } catch (err) {
       logger.error("保存交易日历数据失败:", err);
-    });
-  }).catch(err => {
+    }
+  } catch (err) {
     logger.error("获取交易日历数据失败:", err);
-  });
+  }
+};
+
+/**
+ * 处理股票信息更新消息
+ * @param {Object} data - 消息数据
+ */
+const handleStockInfoUpdate = async (data) => {
+  const { getStockInfo, saveStockInfo } = require("../routes/route/Finance/common");
+  logger.info("收到股票信息更新事件:", data);
+  
+  // 获取并保存最新的股票信息数据
+  try {
+    await getStockInfo();
+    try {
+      await saveStockInfo();
+      logger.info("股票信息数据已成功更新");
+    } catch (err) {
+      logger.error("保存股票信息数据失败:", err);
+    }
+  } catch (err) {
+    logger.error("获取股票信息数据失败:", err);
+  }
 };
 
 module.exports = {
   registerAllHandlers,
   handleTradeStatusChange,
-  handleTradeCalendarUpdate
+  handleTradeCalendarUpdate,
+  handleStockInfoUpdate
 };

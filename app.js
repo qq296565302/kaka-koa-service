@@ -81,7 +81,7 @@ app.ws.use((ctx) => {
 });
 
 const {isTradeCalendarStale} = require("./routes/route/Finance/common");
-
+const {isStockInfoStale} = require("./routes/route/Finance/common");
 // 连接到MongoDB数据库
 connectDB().then(async() => {
   const isTradeCalendarStaleFlag = await isTradeCalendarStale();
@@ -89,6 +89,13 @@ connectDB().then(async() => {
     // 发布交易日历需要更新的事件
     eventBus.publish("tradeCalendarUpdate", { needUpdate: true, timestamp: new Date() });
     logger.info('交易日历需要更新，已发布更新事件');
+  }
+
+  const isStockInfoStaleFlag = await isStockInfoStale();
+  if(isStockInfoStaleFlag) {
+    // 发布股票信息需要更新的事件
+    eventBus.publish("stockInfoUpdate", { needUpdate: true, timestamp: new Date() });
+    logger.info('股票信息需要更新，已发布更新事件');
   }
   logger.info('数据库连接成功');
 }).catch(err => {
