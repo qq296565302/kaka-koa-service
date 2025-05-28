@@ -167,25 +167,8 @@ const getStockInfo = async () => {
         return {
           symbol: item["代码"],
           name: item["名称"],
-          latestPrice: parseFloat(item["最新价"]) || 0,
-          changePercent: parseFloat(item["涨跌幅"]) || 0,
-          changeAmount: parseFloat(item["涨跌额"]) || 0,
-          volume: parseFloat(item["成交量"]) || 0,
-          turnover: parseFloat(item["成交额"]) || 0,
-          amplitude: parseFloat(item["振幅"]) || 0,
-          highPrice: parseFloat(item["最高"]) || 0,
-          lowPrice: parseFloat(item["最低"]) || 0,
-          openPrice: parseFloat(item["今开"]) || 0,
-          prevClosePrice: parseFloat(item["昨收"]) || 0,
-          volumeRatio: parseFloat(item["量比"]) || 0,
-          turnoverRate: parseFloat(item["换手率"]) || 0,
-          peDynamic: parseFloat(item["市盈率-动态"]) || 0,
-          pbRatio: parseFloat(item["市净率"]) || 0,
           totalMarketValue: parseFloat(item["总市值"]) || 0,
           circulationMarketValue: parseFloat(item["流通市值"]) || 0,
-          changeSpeed: parseFloat(item["涨速"]) || 0,
-          fiveMinuteChange: parseFloat(item["5分钟涨跌"]) || 0,
-          sixtyDayChange: parseFloat(item["60日涨跌幅"]) || 0,
           ytdChange: parseFloat(item["年初至今涨跌幅"]) || 0,
           updateTime: new Date()
         };
@@ -292,11 +275,13 @@ const saveStockInfo = async () => {
 
         try {
           const bulkResult = await StockInfo.bulkWrite(bulkOps, { ordered: false });
-          insertedCount += bulkResult.insertedCount || 0;
+          
+          // 新版MongoDB返回格式
+          insertedCount += bulkResult.insertedCount || bulkResult.upsertedCount || 0;
           modifiedCount += bulkResult.modifiedCount || 0;
           matchedCount += bulkResult.matchedCount || 0;
           
-          console.log(`批次 ${batchNumber}/${totalBatches} 处理完成，插入: ${bulkResult.insertedCount}, 更新: ${bulkResult.modifiedCount}, 匹配: ${bulkResult.matchedCount}`);
+          console.log(`批次 ${batchNumber}/${totalBatches} 处理完成，插入/更新: ${insertedCount + modifiedCount}, 匹配: ${matchedCount}`);
         } catch (batchError) {
           failedBatches++;
           console.error(`批次 ${batchNumber}/${totalBatches} 处理失败:`, batchError.message);
