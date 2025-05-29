@@ -80,13 +80,13 @@ const saveTradeCalendar = async () => {
 };
 
 /**
- * * 股票基本信息
- * @Function getStockInfo 获取A股市场所有股票信息
+ * * 股票基本信息 5000+条
+ * TODO 未考虑退市股票，更新的时候需要删除已退市股票
+ * @Function getStockInfo 获取A股市场所有股票信息，包含重试机制，最多重试三次
+ * @Function isStockInfoStale 判断股票信息是否需要更新
+ * @Function saveStockInfo 保存股票信息到数据库，包含缓存机制和分批处理
  */
-/**
- * 获取A股市场所有股票信息
- * 包含重试机制，最多重试三次
- */
+
 const getStockInfo = async () => {
   // 使用模拟数据进行测试
   const useMockData = false; // 如果服务器总是失败，设置为true使用模拟数据
@@ -208,10 +208,6 @@ let stockInfoCache = null;
 let stockInfoCacheTime = null;
 const CACHE_VALID_TIME = 30 * 60 * 1000; // 30分钟缓存有效期
 
-/**
- * 保存股票信息到数据库
- * 包含缓存机制和分批处理
- */
 const saveStockInfo = async () => {
   try {
     // 尝试使用缓存数据
@@ -280,7 +276,7 @@ const saveStockInfo = async () => {
           insertedCount += bulkResult.insertedCount || bulkResult.upsertedCount || 0;
           modifiedCount += bulkResult.modifiedCount || 0;
           matchedCount += bulkResult.matchedCount || 0;
-          
+
           console.log(`批次 ${batchNumber}/${totalBatches} 处理完成，插入/更新: ${insertedCount + modifiedCount}, 匹配: ${matchedCount}`);
         } catch (batchError) {
           failedBatches++;
@@ -305,6 +301,97 @@ const saveStockInfo = async () => {
   }
 };
 
+/**
+ * * 完善股票基本信息
+ * @Function updateStockInfoVersion 更新所有股票信息的版本号
+ * @Function getAllStockInfo 获取所有股票信息并缓存到内存
+ */
+let allStockInfo = [];// 更新所有股票信息的版本号
+const updateStockInfoVersion = async () => {
+  try {
+    console.log('开始更新所有股票信息的版本号');
+    // 批量更新所有没有 version 字段或 version 字段为 null 的记录
+    const updateResult = await StockInfo.updateMany(
+      { $or: [{ version: { $exists: false } }, { version: null }] },
+      { $set: { version: 0 } }
+    );
+    console.log(`成功更新 ${updateResult.modifiedCount} 条股票信息的版本号`);
+    return updateResult.modifiedCount > 0;
+  } catch (error) {
+    console.error('更新股票信息版本号失败:', error.message);
+    return false;
+  }
+};
+
+const updateStockInfoPrefix = async () => {
+  try {
+    console.log('开始更新所有股票信息的前缀');
+    
+    // 上海证券交易所股票前缀设置为 SH
+    const updateSHResult = await StockInfo.updateMany(
+      { 
+        symbol: { 
+          $regex: /^(60|601|603|605|688)/ 
+        },
+        $or: [{ prefix: { $exists: false } }, { prefix: null }, { prefix: '' }]
+      },
+      { $set: { prefix: 'SH' } }
+    );
+    
+    // 深圳证券交易所股票前缀设置为 SZ
+    const updateSZResult = await StockInfo.updateMany(
+      { 
+        symbol: { 
+          $regex: /^(000|001|002|003|004|300)/ 
+        },
+        $or: [{ prefix: { $exists: false } }, { prefix: null }, { prefix: '' }]
+      },
+      { $set: { prefix: 'SZ' } }
+    );
+    
+    // 北京证券交易所股票前缀设置为 BJ
+    const updateBJResult = await StockInfo.updateMany(
+      { 
+        symbol: { 
+          $regex: /^(82|83|87|88|920)/ 
+        },
+        $or: [{ prefix: { $exists: false } }, { prefix: null }, { prefix: '' }]
+      },
+      { $set: { prefix: 'BJ' } }
+    );
+    
+    const totalUpdated = updateSHResult.modifiedCount + updateSZResult.modifiedCount + updateBJResult.modifiedCount;
+    console.log(`成功更新 ${totalUpdated} 条股票信息的前缀（上海: ${updateSHResult.modifiedCount}, 深圳: ${updateSZResult.modifiedCount}, 北京: ${updateBJResult.modifiedCount}）`);
+    
+    return totalUpdated > 0;
+  } catch (error) {
+    console.error('更新股票信息前缀失败:', error.message);
+    return false;
+  }
+};
+
+// 所有股票信息
+const getAllStockInfo = async () => {
+  try {
+    console.log('开始从数据库加载所有股票信息');
+    
+    // 先确保所有记录都有 version 字段
+    await updateStockInfoVersion();
+    
+    // 先确保所有记录都有 prefix 字段
+    await updateStockInfoPrefix();
+    
+    // 获取所有股票信息
+    const allRecords = await StockInfo.find();
+    allStockInfo = allRecords;
+    console.log(`成功加载 ${allStockInfo.length} 支股票信息到内存`);
+    return allStockInfo;
+  } catch (error) {
+    console.error('加载股票信息失败:', error.message);
+    return [];
+  }
+}
+
 
 /**
  * 获取服务器时间（北京时间）
@@ -327,5 +414,7 @@ module.exports = {
   tradeCalendar,
   getStockInfo,
   isStockInfoStale,
-  saveStockInfo
+  saveStockInfo,
+  getAllStockInfo,
+  allStockInfo
 };

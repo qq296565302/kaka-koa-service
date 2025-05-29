@@ -80,10 +80,10 @@ app.ws.use((ctx) => {
   });
 });
 
-const {isTradeCalendarStale} = require("./routes/route/Finance/common");
-const {isStockInfoStale} = require("./routes/route/Finance/common");
+const { isTradeCalendarStale, isStockInfoStale,getAllStockInfo } = require("./routes/route/Finance/common");
 // 连接到MongoDB数据库
 connectDB().then(async() => {
+  // 检查交易日历是否需要更新
   const isTradeCalendarStaleFlag = await isTradeCalendarStale();
   if(!isTradeCalendarStaleFlag) {
     // 发布交易日历需要更新的事件
@@ -91,12 +91,17 @@ connectDB().then(async() => {
     logger.info('交易日历需要更新，已发布更新事件');
   }
 
+  // 检查股票信息是否需要更新
   const isStockInfoStaleFlag = await isStockInfoStale();
   if(isStockInfoStaleFlag) {
     // 发布股票信息需要更新的事件
     eventBus.publish("stockInfoUpdate", { needUpdate: true, timestamp: new Date() });
     logger.info('股票信息需要更新，已发布更新事件');
   }
+  
+  // 加载所有股票信息到内存
+  await getAllStockInfo();
+  
   logger.info('数据库连接成功');
 }).catch(err => {
   logger.error('数据库连接失败:', err);

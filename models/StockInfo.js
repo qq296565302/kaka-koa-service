@@ -35,6 +35,18 @@ const stockInfoSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         comment: '数据更新时间'
+    },
+    // 版本号，用来更新股票基本信息的判断
+    version: {
+        type: Number,
+        default: 0,
+        comment: '版本号'
+    },
+    // 前缀，根据symbol的前缀来判断是沪市还是深市
+    prefix: {
+        type: String,
+        default: '',
+        comment: '前缀'
     }
 }, {
     // 允许Schema包含其他字段
