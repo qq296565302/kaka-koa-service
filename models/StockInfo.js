@@ -47,7 +47,16 @@ const stockInfoSchema = new mongoose.Schema({
         type: String,
         default: '',
         comment: '前缀'
-    }
+    },
+    /**
+     * * 以下是公司基本信息
+     */
+    main_operation_business: {
+        type: String,
+        default: '',
+        comment: '主营业务'
+    },
+    
 }, {
     // 允许Schema包含其他字段
     strict: false,

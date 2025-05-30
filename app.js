@@ -46,7 +46,7 @@ app.use(router.routes(), router.allowedMethods());
 app.ws.use((ctx) => {
   // 将连接添加到管理器
   wsManager.addConnection(ctx.websocket);
-  
+
   // 监听消息事件
   ctx.websocket.on('message', (message) => {
     // 处理Buffer格式的消息
@@ -57,11 +57,11 @@ app.ws.use((ctx) => {
       messageContent = message;
     }
 
-    if(messageContent === 'ping') {
+    if (messageContent === 'ping') {
       ctx.websocket.send('ping');
       return;
     }
-    
+
     // 处理客户端消息
     try {
       const response = handleClientMessage(messageContent);
@@ -80,12 +80,12 @@ app.ws.use((ctx) => {
   });
 });
 
-const { isTradeCalendarStale, isStockInfoStale,getAllStockInfo } = require("./routes/route/Finance/common");
+const { isTradeCalendarStale, isStockInfoStale, getAllStockInfo, getStockInfoBasic } = require("./routes/route/Finance/common");
 // 连接到MongoDB数据库
-connectDB().then(async() => {
+connectDB().then(async () => {
   // 检查交易日历是否需要更新
   const isTradeCalendarStaleFlag = await isTradeCalendarStale();
-  if(!isTradeCalendarStaleFlag) {
+  if (!isTradeCalendarStaleFlag) {
     // 发布交易日历需要更新的事件
     eventBus.publish("tradeCalendarUpdate", { needUpdate: true, timestamp: new Date() });
     logger.info('交易日历需要更新，已发布更新事件');
@@ -93,15 +93,15 @@ connectDB().then(async() => {
 
   // 检查股票信息是否需要更新
   const isStockInfoStaleFlag = await isStockInfoStale();
-  if(isStockInfoStaleFlag) {
+  if (isStockInfoStaleFlag) {
     // 发布股票信息需要更新的事件
     eventBus.publish("stockInfoUpdate", { needUpdate: true, timestamp: new Date() });
     logger.info('股票信息需要更新，已发布更新事件');
   }
-  
+
   // 加载所有股票信息到内存
-  await getAllStockInfo();
-  
+  await getAllStockInfo()
+
   logger.info('数据库连接成功');
 }).catch(err => {
   logger.error('数据库连接失败:', err);
