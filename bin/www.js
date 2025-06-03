@@ -19,7 +19,18 @@ var port = normalizePort(process.env.PORT || '3300');
  * Create HTTP server.
  */
 
+// 创建 HTTP 服务器
+// 注意：koa-websocket 已经在 app 中集成了 WebSocket 服务器
+// 我们需要使用 app.callback() 来创建服务器
 var server = http.createServer(app.callback());
+
+// 将 WebSocket 服务器与 HTTP 服务器关联
+// 这一步已经在 app.js 中通过 websockify 完成
+// 但我们需要确保它们使用相同的服务器实例
+// 如果 app.ws.listen 存在，则调用它
+if (app.ws && typeof app.ws.listen === 'function') {
+  app.ws.listen({ server });
+}
 
 /**
  * Listen on provided port, on all network interfaces.
