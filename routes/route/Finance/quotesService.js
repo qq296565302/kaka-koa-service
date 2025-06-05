@@ -181,7 +181,6 @@ try {
   console.error("加载交易状态失败:", error);
 }
 
-// handleClientMessage 函数已移至 app.js
 
 module.exports = {
   tradeStatus, // * 交易状态

@@ -80,7 +80,7 @@ app.ws.use((ctx) => {
   });
 });
 
-const { isTradeCalendarStale, isStockInfoStale, getAllStockInfo, getStockInfoBasic } = require("./routes/route/Finance/common");
+const { isTradeCalendarStale, isStockInfoStale, getAllStockInfo } = require("./routes/route/Finance/common");
 // 连接到MongoDB数据库
 connectDB().then(async () => {
   // 检查交易日历是否需要更新
