@@ -13,11 +13,6 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '3300');
-// app.set('port', port);
-
-/**
- * Create HTTP server.
- */
 
 // 创建 HTTP 服务器
 // 注意：koa-websocket 已经在 app 中集成了 WebSocket 服务器

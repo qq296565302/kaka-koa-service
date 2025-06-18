@@ -4,12 +4,10 @@ const bodyParser = require('koa-bodyparser');
 const websockify = require('koa-websocket');
 const wsManager = require('./utils/websocketManager');
 const logger = require('./utils/logger');
-const { saveState, loadState } = require('./utils/stateStorage');
 const eventBus = require('./utils/eventBus');
 const { registerAllHandlers } = require('./utils/messageHandlers');
 const { handleClientMessage } = require('./utils/messageProcessor');
 const { connectDB } = require('./config/db');
-const { saveTradeCalendar } = require('./routes/route/Finance/common');
 const app = websockify(new Koa());
 const router = require("./routes/index");
 
@@ -35,10 +33,6 @@ app.use(async (ctx, next) => {
   }
 });
 
-// 定义一个简单的路由
-router.get('/', async (ctx) => {
-  ctx.body = 'Hello, Koa!!';
-});
 
 app.use(router.routes(), router.allowedMethods());
 
@@ -80,7 +74,8 @@ app.ws.use((ctx) => {
   });
 });
 
-const { isTradeCalendarStale, isStockInfoStale, getAllStockInfo } = require("./routes/route/Finance/common");
+const { isTradeCalendarStale } = require("./routes/route/Finance/common");
+const { isStockInfoStale, getAllStockInfo } = require("./routes/route/Finance/stockInfoService");
 // 连接到MongoDB数据库
 connectDB().then(async () => {
   // 检查交易日历是否需要更新
@@ -109,5 +104,6 @@ connectDB().then(async () => {
 
 // 初始化所有消息处理器
 registerAllHandlers();
+
 
 module.exports = app;

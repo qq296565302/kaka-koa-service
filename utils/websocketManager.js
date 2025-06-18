@@ -1,8 +1,8 @@
-const logger = require('./logger');
 /**
  * WebSocket 连接管理器
  * 用于存储和管理所有活跃的 WebSocket 连接
  */
+const logger = require('./logger');
 
 // 存储所有活跃的 WebSocket 连接
 const connections = new Set();
@@ -46,9 +46,15 @@ const broadcast = (data) => {
   logger.info(`WebSocket 广播消息成功发送到 ${successCount}/${connections.size} 个连接`);
 };
 
+/**
+ * 获取当前连接数
+ * @returns {number} 当前活跃连接数
+ */
+const getConnectionsCount = () => connections.size;
+
 module.exports = {
   addConnection,
   removeConnection,
   broadcast,
-  getConnectionsCount: () => connections.size
+  getConnectionsCount
 };

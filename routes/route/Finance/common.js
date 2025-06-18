@@ -79,13 +79,6 @@ const saveTradeCalendar = async (tradeCalendar) => {
   }
 };
 
-const {
-  getStockInfo,
-  isStockInfoStale,
-  saveStockInfo,
-  getAllStockInfo,
-  getStockInfoBasic
-} = require('./stockInfoService');
 
 /**
  * 获取服务器时间（北京时间）
@@ -104,10 +97,5 @@ module.exports = {
   getTradeCalendar,
   saveTradeCalendar,
   isTradeCalendarStale,
-  getServerTime,
-  getStockInfo,
-  isStockInfoStale,
-  saveStockInfo,
-  getAllStockInfo,
-  getStockInfoBasic
+  getServerTime
 };

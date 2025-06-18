@@ -67,7 +67,6 @@ const getSina7x24 = async () => {
 
     sina7x24Data.lastFetchTime = new Date();
 
-    console.log(`成功获取新浪财经数据: ${response.data.length} 条, 新增 ${sina7x24Data.updatedCount} 条`);
     return response.data; // 只返回响应数据，而不是整个响应对象
   } catch (error) {
     console.error("获取新浪财经数据失败:", error.message);

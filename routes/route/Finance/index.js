@@ -31,6 +31,7 @@ router.get("/trade-calendar", async (ctx) => {
     data: await getTradeCalendar()
   };
 });
+
 /**
  * 获取财联社新闻数据的路由
  */

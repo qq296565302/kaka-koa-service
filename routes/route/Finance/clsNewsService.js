@@ -113,7 +113,6 @@ const getClsNews = async (symbol = "全部") => {
     
     clsNewsData.lastFetchTime = new Date();
 
-    console.log(`成功获取财联社新闻数据: ${clsNews.length} 条, 新增 ${clsNewsData.updatedCount} 条, 更新标题: ${clsNewsData.data[0]?.["标题"]}`);
   } catch (error) {
     console.error("获取财联社新闻数据失败:", error.message);
   }

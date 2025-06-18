@@ -297,7 +297,6 @@ const updateStockInfoPrefix = async () => {
 
 const getAllStockInfo = async () => {
   try {
-    console.log('开始从数据库加载所有股票信息');
 
     // 先确保所有记录都有 version 字段
     await updateStockInfoVersion();
@@ -308,7 +307,6 @@ const getAllStockInfo = async () => {
     // 获取所有股票信息
     const allRecords = await StockInfo.find();
     allStockInfo = allRecords;
-    console.log(`成功加载 ${allStockInfo.length} 支股票信息到内存`);
     return allStockInfo;
   } catch (error) {
     console.error('加载股票信息失败:', error.message);

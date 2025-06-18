@@ -39,9 +39,8 @@ const handleClientMessage = (message) => {
 const processMessage = (msg) => {
   if (msg && msg.type) {
     // 这里是精华所在！通过事件总线发布消息
-    eventBus.publish(msg.type, msg.data);
-    // 就像把包裹放到传送带上，自动送到对应部门
-    // 贴心的监控机制：记录未知消息类型
+    eventBus.publish(msg.type, msg.data || msg.payload);
+
     if (
       !eventBus.subscribers[msg.type] ||
       eventBus.subscribers[msg.type].length === 0
