@@ -17,14 +17,14 @@ const getMarketEffect = async () => {
   try {
     const response = await axios.get(`${AKShareServiceURL}/stock_market_activity_legu`);
     const data = response.data;
-    
+
     if (data && data.length > 0) {
       // 将数据转换为符合Schema的格式
       const marketEffectData = {};
-      
+
       // 遍历API返回的数据，根据item字段映射到Schema中的字段
       data.forEach(item => {
-        switch(item.item) {
+        switch (item.item) {
           case "上涨":
             marketEffectData.rise = item.value;
             break;
@@ -63,11 +63,11 @@ const getMarketEffect = async () => {
             break;
         }
       });
-      
+
       // 检查是否所有必需字段都已赋值
       const requiredFields = ['rise', 'limitUp', 'realLimitUp', 'stLimitUp', 'fall', 'limitDown', 'realLimitDown', 'stLimitDown', 'flat', 'suspended', 'activity', 'statisticsDate'];
       const missingFields = requiredFields.filter(field => marketEffectData[field] === undefined);
-      
+
       if (missingFields.length === 0) {
         // 创建新的MarketEffect文档并保存到数据库
         const marketEffect = new MarketEffect(marketEffectData);
@@ -77,13 +77,21 @@ const getMarketEffect = async () => {
         console.error("赚钱效应分析数据缺少必需字段:", missingFields);
       }
     }
-    
+
     return data;
   } catch (error) {
     console.error("获取赚钱效应分析数据失败:", error.message);
     return [];
   }
 }
+
+const { getTradeStatus, updateTradeStatus } = require("../../../store/state");
+setInterval(async () => {
+ const state = getTradeStatus();
+ if(state === 2){
+  await getMarketEffect();
+ }
+}, 5000); // 每小时获取一次
 
 module.exports = {
   getMarketEffect

@@ -85,20 +85,20 @@ const { tradeTimeService } = require("./tradeTimeService");
 const eventBus = require("../../../utils/eventBus");
 const logger = require("../../../utils/logger");
 
-let tradeStatus = 1;
+const {getTradeStatus,updateTradeStatus} = require("../../../store/state");
+const tradeStatus = getTradeStatus();
 logger.info(`交易状态监控已启动，初始状态: ${tradeStatus}`);
 
 setInterval(async () => {
     try {
         const tempTradeStatus = await tradeTimeService(new Date().getTime());
-        if (tempTradeStatus !== tradeStatus) {
-            logger.info(`交易状态发生变化: ${tradeStatus} -> ${tempTradeStatus}`);
-            tradeStatus = tempTradeStatus;
+        if (tempTradeStatus !== getTradeStatus()) {
+            updateTradeStatus(tempTradeStatus);
             // 当交易状态发生变化时，发布事件通知所有订阅者
             const eventData = { 
                 type: "tradeStatus", 
             };
-            logger.info(`发布交易状态变化事件:`, eventData);
+            logger.info(`发布交易状态变化事件:`, JSON.stringify(eventData));
             eventBus.publish("getStatus", eventData);
         }
     } catch (error) {
