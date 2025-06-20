@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+/**
+ * 获取东八区时间
+ * @returns {Date} 东八区时间
+ */
+const getBeijingTime = () => {
+    const now = new Date();
+    // 获取UTC时间戳
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    // 东八区时间 = UTC时间 + 8小时
+    return new Date(utc + (8 * 3600000));
+};
+
 const MarketEffectSchema = new Schema({
     rise: { type: Number, required: true }, // 上涨
     limitUp: { type: Number, required: true }, // 涨停
@@ -13,9 +25,13 @@ const MarketEffectSchema = new Schema({
     flat: { type: Number, required: true }, // 平盘
     suspended: { type: Number, required: true }, // 停牌
     activity: { type: String, required: true }, // 活跃度
-    statisticsDate: { type: Date, required: true } // 统计日期
+    statisticsDate: {
+        type: String,
+        required: true,
+        default: getBeijingTime // 默认使用东八区时间
+    }, // 统计日期
 }, {
-    timestamps: true // 添加 createdAt 和 updatedAt 字段
+    timestamps: true
 });
 
 module.exports = mongoose.model('MarketEffect', MarketEffectSchema);
