@@ -120,6 +120,20 @@ router.get("/quotes/market-effect", async (ctx) => {
   };
 });
 
+/**
+ * * 企业动态
+ * * 单次返回当前所有上市公司的动态数据
+ */
+const { saveCompanyDynamics } = require("./companyDynamicsService");
+router.get("/quotes/company-dynamics", async (ctx) => {
+  const date = ctx.query.date;
+  const data = await saveCompanyDynamics(date);
+  ctx.body = {
+    code: 200,
+    data
+  };
+});
+
 // 导出路由模块
 module.exports = {
   routes: function () {
