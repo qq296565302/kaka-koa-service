@@ -22,16 +22,18 @@ router.get("/time", async (ctx) => {
     data: getServerTime()
   };
 });
+
 /**
- * 获取交易日历
+ * 判断今天是否是交易日
  */
-router.get("/trade-calendar", async (ctx) => {
+
+const { isInTradeTime } = require("../TradeCalendar/tradeTimeService");
+router.get("/is-trading-day", async (ctx) => {
   ctx.body = {
     code: 200,
-    data: await getTradeCalendar()
+    data: isInTradeTime()
   };
 });
-
 /**
  * 获取财联社新闻数据的路由
  */

@@ -21,7 +21,7 @@ const tradeTimeService = async (currentTimestamp) => {
  * @returns {Promise<boolean>} 是否为交易日
  */
 const isTodayTradingDay = async () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().split("T")[0];
     const record = await TradeCalendar.findOne({ trade_date: today });
     return record !== null;
 };
@@ -46,7 +46,7 @@ const dayjs = require("dayjs");
  */
 const isInTradeTime = (currentTimestamp) => {
     const currentTime = dayjs(currentTimestamp);
-    
+
     // 定义当日的交易时间段
     const morningStart = dayjs(currentTimestamp).hour(9).minute(30).second(0).millisecond(0);
     const morningEnd = dayjs(currentTimestamp).hour(11).minute(30).second(0).millisecond(0);

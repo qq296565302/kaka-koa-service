@@ -8,7 +8,6 @@
 const axios = require("axios");
 const { AKShareServiceURL } = require("../../../utils/constants");
 const TradeCalendar = require("../../../models/TradeCalendar");
-const wsManager = require("../../../utils/websocketManager");
 
 
 const getTradeCalendar = async () => {
@@ -77,7 +76,6 @@ const isTradeCalendarStale = async () => {
     }
     return true;
 };
-
 
 
 // * 判断现在是否是交易时段
