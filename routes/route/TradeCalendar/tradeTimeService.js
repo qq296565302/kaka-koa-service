@@ -21,6 +21,7 @@ const tradeTimeService = async (currentTimestamp) => {
  * @returns {Promise<boolean>} 是否为交易日
  */
 const isTodayTradingDay = async () => {
+    const date = new Date();
     const today = new Date(date.getTime() + 8 * 60 * 60 * 1000).toISOString().split("T")[0];
     const record = await TradeCalendar.findOne({ trade_date: today });
     return record !== null;
