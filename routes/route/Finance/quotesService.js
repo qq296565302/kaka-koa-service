@@ -65,7 +65,7 @@ setInterval(async () => {
   if (state === 1) {
     await saveCommonQuotes();
   }
-}, 1000 * 60 * 0.5); // 每1分钟获取一次
+}, 1000 * 60 * 0.5); // 每0.5分钟获取一次
 
 module.exports = {
   saveCommonQuotes,
